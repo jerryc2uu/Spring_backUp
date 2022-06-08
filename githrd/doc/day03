@@ -1,0 +1,234 @@
+# day03
+
+mybatis에서는 연결된 질의명령을 하나의 질의 실행으로 연속해서 실행
+
+	[예]
+		1. 일련변호 발생 후 그 번호를 다른 곳에서 insert 해야 하는 경우
+		2. 특정 테이블의 결과 이용해서 다른 테이블에 그 내용 사용해야 하는 경우
+	
+	[사용방법]
+		<실행태그 id=""> insert, delete, update에만 적용 가능
+			<selectKey keyProperty="키값" resultType="데이터형태" parameterType="데이터형태"
+				order="BEFORE | AFTER"(메인질의명령보다 먼저인지 나중인지)>
+					질의명령
+			</selectKey>
+			
+			메인질의명령
+				
+		</실행태그>
+
+=================================
+	
+	sql.xml
+	<mapper>
+	
+	namespace : 이 파일과 같은 xml 파일이 여러 개 있는 경우 이를 구분해주는 키값
+				이처럼 sql 파일을 구분할 목적으로 해당 파일에 별칭을 붙이는 방법
+				
+				***
+				각각의 SQL xml 파일마다 namespace 값은 달라야한다.
+		
+		[지정하는 방법]
+			1. 일반 문자 지정 방법
+				mSQL
+			2. 패키지 형태로 지정 방법
+				com.githrd.www.member.???
+				
+		
+		MemberSQL.xml은 데이터베이스에 보낼 질의명령을 저장하는 파일
+		따라서 이 안에 sql문 작성해가면 된다.
+		
+		그런데 xml 문서라서 반드시 하위 태그가 존재한다.
+		질의명령에 따라 
+			<select>, <insert>, <update>, <delete>, <sql> 등 다르다.
+
+----------------------------------------
+	
+		각각의 질의명령 태그에는 필수 속성이 있다.
+		
+		 **	id : 이 파일에는 여러 개의 질의 명령이 있다. 각각의 질의명령을 구분할 수 있어야 하는데
+		         jsp 프로젝트에서 질의명령 구분 시 상수로 구분했던 것처럼
+		         각각의 질의명령 구분할 목적으로 사용하는 속성이 "id"...
+		 
+		 보조 속성(선택)
+		 	1. resultType : 질의명령 결과가 어떤 데이터 형태로 나올지
+		 					질의명령 결과가 여러 행이더라도 한 행만 고려(여러 행은 mybatis가 해결)	
+		 		 
+		 		 [예]
+		 		 	SELECT
+		 		 		mno
+		 		 	FROM
+						member	 		 	
+					==> 회원 수만큼 여러 행 조회
+					    한 행의 결과는 int
+					    	resultType="int"
+					    		
+		 	2. parameterType : 질의명령에 ?가 있을 경우 여기에 채울 데이터 타입
+		 						단 하나만 지정 가능,
+		 						?가 여러 개 있을 경우 그 여러 개 모두 기억할 수 있는 데이터 타입 지정
+		 		   				? 두 개 이상 존재 시, VO(Value Object) 클래스 사용
+			
+			[참고]
+				resultType, parameterType을 지정하는 경우
+				풀 패키지 경로 사용하는 게 원칙
+				
+				[예]
+					MemberVO => com.githrd.www.vo.MemberVO
+					
+					코드 너무 길다
+					
+				[해결 방법]
+					1. myBatis 에서 줄여준 것 사용 (String도 마찬가지..)
+					2. 별칭 부여
+						myBatis의 환경설정 파일(mybatis-config.xml)에서 
+						<typeAliasese>를 지정해서 사용
+
+-----------------------------------
+
+		myBatis에서는 채울 데이터(매개변수)는 ?로 처리하지 않음
+		
+		[형식]
+			#{변수이름}
+			
+			규칙
+				1. VO 이용하는 경우 getXXX()의 XXX 이름으로 지정하면 된다.
+					(첫글자는 소문자로 강제 지정)
+					VO에 id 제공하는 함수가 getId()라면
+							#{id}로,
+							getPw()라면
+							#{pw}로
+			[장점]
+				순서 상관없이 자신이 알아서 get함수 이용해서 필요한 데이터 꺼내서 셋팅
+				
+----------------------------
+
+		질의명령 작성 시 중복 발생
+		한 번만 작성하고 작성된 질의명령 가져다 사용하는 방법을 mybatis에서 제공
+		
+		[형식]
+			중복되는 질의명령 부분
+				
+				<sql id="???">
+					중복되는 질의명령
+				</sql>
+			
+			사용하는 부분
+				<include refid="???" />
+				
+--------------------------
+
+	myBatis에서 사용하는 조건 처리 명령
+	
+		1. if
+			[형식]
+				<if test="조건식">
+					질의명령
+				</if>
+				=> 조건식이 참이면 질의명령 해당 위치에 추가
+				
+		2. choose, when, otherwise
+			[형식]
+				<choose>
+					<when test="조건식">
+
+					</when>
+					<when test="조건식2">
+
+					</when>
+					<when test="조건식3">
+
+					</when>
+					<otherwise>
+					</otherwise>
+				</choose>
+				
+				
+	**	3. trim
+			: 질의명령 특성 상 조건식 처리 할 때 첫번째 조건은 그냥 쓰면 되지만
+			  두번째 조건부터는 AND | OR로 연결해야 한다.
+			  또는
+			  
+			  UPDATE
+			  	member
+			  SET
+			  	pw = #{pw}, 
+			  	mail = #{mail},
+			  	tel = #{tel},
+			  	avt = #{ano}
+			  WHERE
+			  	id = #{id}
+			  ;
+			  
+			  ==> 비번 변경하는 경우는 pw = #{pw}로 만들어져야 하고
+			      전번은 pw = #{pw},
+			      		 tel = #{tel}
+					
+				  이런 경우 해결 방법으로 만들어놓은 태그가 <trim>, <set>
+				  
+				  [형식]
+				  	<trim prefix="WHERE" prefixOverrides="AND | OR">
+				  	</trim>
+				  
+				  [의미]
+				  	이 문장이 실행되는 순간 무조건 where 붙이세요(prefix="WHERE")
+				  	다음 문장 부터는 AND | OR 붙이는 첫번째것만 AND나 OR 삭제(prefixOverrides="AND | OR")
+					
+				  [예]
+				  	SELECT
+				  		*
+				  	FROM
+				  		member
+				  	<trim prefix="WHERE" prefixOverrides="AND | OR">
+				  		<if test="조건식">
+				  			AND avt = 11
+				  		</if>
+				  		<if test="조건식2">
+				  			AND gen = 'M'
+				  		</if>
+				  		<if test="조건식3">
+				  			AND gen = 'F'
+				  		</if>
+				  	</trim>
+		
+		4. foreach
+			
+			[형식]
+				<foreach item="변수이름" index="st" collection="데이터"
+					open="???" seperator"???" close="???">
+				</foreach>
+		 		
+		 		==> ArrayList에 담긴 데이터 갯수만큼 반복하면서
+		 		    특정 질의명령 만들어줌
+		 		    
+		 		    item : 변수
+		 		    index : 순서
+		 		    collection : ArrayList (실제 데이터 담긴 변수)
+ 		 		    open : 반복 전 처리할 내용
+ 		 		    seperator : 매 반복마다 처리할 내용
+ 		 		    close : 반복 끝나면 처리할 내용
+ 		 	
+ 		 	[예]
+ 		 		SELECT
+ 		 			*
+ 		 		FROM
+ 		 			emp
+ 		 		WHERE
+ 		 			deptno IN(10)
+ 		 			deptno IN(10, 20)
+ 		 			deptno IN(10, 20, 30)
+ 		 			
+ 		 		위처럼 IN 다음에 조건식에 사용할 내용이 매번 다른 경우
+ 		 		컨트롤러에서 데이터를 list라는 변수 이름으로 ArrayList를 기억했따면
+ 		 		
+ 		 		SELECT
+ 		 			*
+ 		 		FROM
+ 		 			emp
+ 		 		WHERE
+					deptno IN
+					<foreach item="data" index="idx" collection="list"
+							open="(" seperator="," close=")">
+						#{data}
+					</foreach>
+						
+						

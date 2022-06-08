@@ -28,6 +28,10 @@
 	.mt10 {
 		margin-top: 30px;
 	}
+	
+	#msgWin {
+		display: block;
+	}
 </style>
 <script type="text/javascript">
 	var sessionId = '${SID}';//자바코드.. main.jsp가 만들어질 때 셋팅됨
@@ -48,10 +52,6 @@
 </c:if>
 				<div class="w3-col" id="btnfr">
 <c:if test="${not empty SID}">
-					<script type="text/javascript">
-						alert('${SID} 님이 로그인했습니다.');
-					</script>
-
 					<div class="w3-col w3-border-bottom pdb10">
 						<span class="w3-cell m2 w3-button w3-small w3-red w3-hover-light-green w3-right mt0" id="obtn">LogOut</span>
 						<span class="w3-cell m2 w3-button w3-small w3-red w3-hover-light-green w3-left mt0" id="ibtn">내정보 보기</span>
@@ -84,5 +84,19 @@
 				</div>
 		</div>
 	</div>
+	
+<c:if test="${(not empty SID) and (MSG_CHECK eq 'OK')}">	
+	<div id="msgWin" class="w3-modal">
+	    <div class="w3-modal-content w3-animate-top w3-card-4">
+	   		<header class="w3-container w3-blue"> 
+		        <span class="w3-button w3-display-topright" id="msgClose">&times;</span>
+		        <h2>알림 메세지</h2>
+	    	</header>
+		    <div class="w3-container">
+		        <h3 class="w3-center w3-margin-top w3-margin-bottom" id="msg">${SID} 님 로그인 하셨습니다.</h3>
+		    </div>
+	    </div>
+  	</div>
+</c:if>
 </body>
 </html>

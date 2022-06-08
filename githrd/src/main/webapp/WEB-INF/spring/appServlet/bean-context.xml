@@ -12,4 +12,6 @@
 	<context:annotation-config />
 	
 	<bean id="mDao" class="com.githrd.www.dao.MemberDao" />
+	<bean id="gDao" class="com.githrd.www.dao.GBoardDao" />
+	<bean id="rDao" class="com.githrd.www.dao.ReBoardDao" />
 </beans>

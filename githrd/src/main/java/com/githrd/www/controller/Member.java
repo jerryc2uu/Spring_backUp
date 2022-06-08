@@ -3,6 +3,7 @@ package com.githrd.www.controller;
 import java.util.*;
 
 
+
 import javax.servlet.http.*;
 
 import org.springframework.beans.factory.annotation.*;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.*;
 import org.springframework.web.servlet.view.RedirectView;
 
+import com.githrd.www.dao.GBoardDao;
 import com.githrd.www.dao.MemberDao;
 import com.githrd.www.vo.MemberVO;
 
@@ -22,6 +24,8 @@ public class Member {
 	
 	@Autowired
 	MemberDao mDao;
+	@Autowired
+	GBoardDao gDao;
 	
 	//로그인 페이지 보이기
 	@RequestMapping("/login.blp")
@@ -55,7 +59,18 @@ public class Member {
 		
 		if(cnt == 1) {
 			session.setAttribute("SID", mVO.getId());
-			rv.setUrl("/www/main.blp");
+			session.setAttribute("MSG_CHECK", "OK");
+			
+			int count = gDao.getMyCount(mVO.getId());
+			
+			session.setAttribute("CNT", count);
+			
+			if(count == 0) {
+				rv.setUrl("/www/gBoard/gBoardList.blp");
+			} else {
+				rv.setUrl("/www/main.blp");				
+			}
+			
 		} else {
 			rv.setUrl("/www/member/login.blp");
 		}
@@ -143,11 +158,19 @@ public class Member {
 	
 	//로그아웃 처리
 	@RequestMapping("/logout.blp")
-	public ModelAndView logout(ModelAndView mv, HttpSession session, RedirectView rv) {
+	public ModelAndView logout(ModelAndView mv, HttpSession session, String vw, String nowPage) {
 		session.removeAttribute("SID");
 		
-		rv.setUrl("/www/");
-		mv.setView(rv);
+		if(vw == null) {
+			vw = "/www/";
+		}
+		
+		if(nowPage != null) {
+			mv.addObject("NOWPAGE", nowPage);
+		}
+		
+		mv.addObject("VIEW", vw);
+		mv.setViewName("member/redirect");
 		return mv;
 	}
 	
@@ -185,11 +208,24 @@ public class Member {
 	@RequestMapping(path="/joinProc.blp", method=RequestMethod.POST)
 	public ModelAndView joinProc(MemberVO mVO, ModelAndView mv, RedirectView rv, HttpSession session) {
 		
+		System.out.println("######### before mno : " + mVO.getMno());
 		int cnt = mDao.addMember(mVO);
+		System.out.println("######### after mno : " + mVO.getMno());
+		
 		if(cnt == 1) {
 			// 회원가입 성공
 			session.setAttribute("SID", mVO.getId());
-			rv.setUrl("/www/");
+			session.setAttribute("MSG_CHECK", "OK");
+			
+			int count = gDao.getMyCount(mVO.getId());
+			
+			session.setAttribute("CNT", count);
+			
+			if(count == 0) {
+				rv.setUrl("/www/gBoard/gBoardList.blp");
+			} else {
+				rv.setUrl("/www/main.blp");				
+			}
 		} else {
 			rv.setUrl("/www/member/join.blp");			
 		}
@@ -227,16 +263,117 @@ public class Member {
 		return map;
 	}
 	
+	//내 정보 보기
+	@RequestMapping("/myInfo.blp")
+	public ModelAndView myInfo(ModelAndView mv, String id) {
+		
+		//데이터 가져오고
+		MemberVO mVO = mDao.getIdInfo(id);
+		//뷰에 데이터 심고
+		mv.addObject("DATA", mVO);
+		//뷰 정하고(포워드)
+		mv.setViewName("member/memberInfo");
+		return mv;
+	}
+	
+	
 	//회원 리스트 폼보기
 	@RequestMapping("/memberList.blp")
 	public ModelAndView memberList(ModelAndView mv, RedirectView rv) {
+		//데이터 가져오고
 		List<MemberVO> list = mDao.memberList();
 		
 		//ModelAndView에 데이터 심고
 		mv.addObject("LIST", list);	
+		//뷰 설정하고(포워딩)
 		mv.setViewName("member/memberList");
+		
 		return mv;
 	}
 	
+	//회원 정보 보기
+	@RequestMapping("/memberInfo.blp")
+	public ModelAndView memberInfo(ModelAndView mv, int mno) {
+		//데이터 가져오고
+		MemberVO mVO = mDao.getMnoInfo(mno);
+		//뷰에 데이터 심고
+		mv.addObject("DATA", mVO);
+		//뷰 정하고(포워드)
+		mv.setViewName("member/memberInfo");
+		return mv;
+	}
+	
+	//회원 탈퇴
+	@RequestMapping("/delMember.blp")
+	public ModelAndView delMember(ModelAndView mv, String id, RedirectView rv, HttpSession session) {
+		String sid = (String) session.getAttribute("SID");
+		if(sid == null) {
+			rv.setUrl("/www/member/login.blp");
+			mv.setView(rv);
+			return mv;
+		}
+		if(!id.equals(sid)) {
+			rv.setUrl("/www/member/myInfo.blp");
+			mv.setView(rv);
+			return mv;
+		}
+		
+		int cnt = mDao.delMember(id);
+		
+		if(cnt == 1) {
+			//탈퇴 성공
+			//세션에 기억시켜둔 데이터를 삭제
+			session.removeAttribute("SID");
+			rv.setUrl("/www/");
+		} else {
+			rv.setUrl("/www/member/myInfo.blp");			
+		}
+		
+		mv.setView(rv);
+		return mv;
+	}
+	
+	//내 정보 수정 폼보기
+	@RequestMapping("/myInfoEdit.blp")
+	public ModelAndView myInfoEdit(ModelAndView mv, String id, RedirectView rv, HttpSession session) {
+		String sid = (String) session.getAttribute("SID");
+		if(sid == null) {
+			rv.setUrl("/www/member/login.blp");
+			mv.setView(rv);
+			return mv;
+		} 
+			 
+		if(!id.equals(sid)) { 
+			 rv.setUrl("/www/main.blp"); 
+			 mv.setView(rv);
+			 return mv; 
+		}	 
+		
+		//데이터베이스 조회
+		MemberVO mVO = mDao.getIdInfo(id);
+		List<MemberVO> list = mDao.genAvtList(id);
+		
+		mv.addObject("DATA", mVO);
+		mv.addObject("LIST", list);
+		
+		//뷰 정하고
+		mv.setViewName("member/editInfo");
+		return mv;
+	}
+	
+	// 내 정보 수정 처리
+	@RequestMapping("/infoEditProc.blp")
+	public ModelAndView infoEditProc(ModelAndView mv, MemberVO mVO, RedirectView rv) {
+		int cnt = mDao.editMyInfo(mVO);
+		String view = "member/redirect";
+		
+		if(cnt == 0) {
+			mv.addObject("VIEW", "/www/member/myInfoEdit.blp");
+		} else {
+			mv.addObject("VIEW", "/www/member/myInfo.blp");
+		}
+		mv.setViewName(view);
+		return mv;
+	}
 	
 }

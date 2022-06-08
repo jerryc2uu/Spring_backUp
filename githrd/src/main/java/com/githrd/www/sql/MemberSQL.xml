@@ -3,24 +3,24 @@
 	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="mSQL">
-	<select id="login" resultType="int" parameterType="mVO">
+    <!-- 자주 사용하는 내용은 한 번만 만들어서 재사용 -->
+	<sql id="selCnt">
 		SELECT
 			COUNT(*)
 		FROM
 			member
 		WHERE
-			isshow = 'Y'
-			AND id = #{id}
+			id =
+	</sql>
+	
+	<select id="login" resultType="int" parameterType="mVO">
+		<include refid="selCnt" />#{id}
+			AND isshow = 'Y'
 			AND pw = #{pw}
 	</select>
 	
 	<select id="idCnt" resultType="int" parameterType="string">
-		SELECT
-			COUNT(*)
-		FROM
-			member
-		WHERE
-			id = #{id}
+		 <include refid="selCnt" />#{id}
 	</select>
 	
 	<select id="avtList" resultType="mVO"> <!-- 반환값 타입에는 한 행의 데이터 타입만 쓰면 됨 / 받아야할 파라미터 없음 -->
@@ -32,16 +32,57 @@
 		    gen IN('M', 'F')
 		    AND isshow = 'Y'
 	</select>
+	<select id="genAvtList" resultType="mVO" parameterType="string">
+		SELECT
+		    ano, savename
+		FROM
+		    avatar
+		WHERE
+		    gen = (
+		    		SELECT
+		    			gen
+		    		FROM
+		    			member
+		    		WHERE
+		    			id = #{id}
+		    		
+		    		)
+		    AND isshow = 'Y'
+	</select>
 	
 	<insert id="addMember" parameterType="mVO">
+		<selectKey keyProperty="mno" resultType="int" order="BEFORE">
+			(SELECT NVL(MAX(mno) + 1, 1001) FROM member)
+		</selectKey>
 		INSERT INTO
 		    member(mno, name, id, pw, mail, tel, gen, avt)
 		VALUES(
-		    (SELECT NVL(MAX(mno) + 1, 1001) FROM member),
-		    #{name}, #{id}, #{pw}, #{mail}, #{tel}, #{gen}, #{ano} 
+		    #{mno}, #{name}, #{id}, #{pw}, #{mail}, #{tel}, #{gen}, #{ano} 
 		)
 	</insert>
 	
+	<!-- 정보 조회 중복 질의명령 -->
+	<sql id="selInfo">
+		SELECT
+			mno, name, id, mail, tel, m.gen, joindate jdate, ano, savename
+		FROM
+			member m, avatar a
+		WHERE
+			avt = ano	
+	</sql>
+	<!-- 나의 정보 조회 -->
+	<select id="getIdInfo" resultType="mVO" parameterType="string">
+		<include refid="selInfo" />	
+			AND id = #{id}
+	</select>
+	
+	<!-- 회원 정보 조회 -->
+	<select id="getMnoInfo" resultType="mVO" parameterType="int">
+		<include refid="selInfo" />	
+			AND mno = #{mno}
+	</select>
+	
+	<!-- 회원 리스트 조회 -->
 	<select id="memberList" resultType="mVO">
 		SELECT
 		    mno, name
@@ -50,4 +91,48 @@
 		WHERE
 		    isshow = 'Y'
 	</select>
+	
+	<update id="delMember" parameterType="string">
+		UPDATE
+			member
+		SET
+			isshow = 'N'
+		WHERE
+			id = #{id}
+	</update>
+	
+	<update id="editInfo" parameterType="mVO">
+		UPDATE
+			member
+		<set><!-- set절 만들어주는 태그 -->
+			<if test="pw neq null">
+				pw = #{pw},
+			</if>
+			<if test="mail neq null">
+				mail = #{mail},
+			</if>
+			<if test="tel neq null">
+				tel = #{tel},
+			</if>
+			<if test="ano neq 0">
+				avt = #{ano},
+			</if>
+		</set> 
+<!-- 		<trim prefix="SET" suffixOverrides=",">
+			<if test="pw neq null">
+				pw = #{pw},
+			</if>
+			<if test="mail neq null">
+				mail = #{mail},
+			</if>
+			<if test="tel neq null">
+				tel = #{tel},
+			</if>
+			<if test="ano neq 0">
+				avt = #{ano},
+			</if>
+		</trim>  -->
+		WHERE
+			mno = #{mno}
+	</update>
 </mapper>
