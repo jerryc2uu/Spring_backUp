@@ -2,6 +2,7 @@ package com.githrd.www.dao;
 
 import java.util.List;
 
+
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -39,5 +40,25 @@ public class ReBoardDao {
 	//댓글 및 대댓글 등록 처리 함수
 	public int addReBoard(BoardVO bVO) {
 		return sqlSession.insert("rSQL.addReBoard", bVO);
+	}
+	
+	//댓글 폼 데이터 조회 함수
+	public BoardVO getCommentData(BoardVO bVO) {
+		return sqlSession.selectOne("rSQL.commentData", bVO);	
+	}
+	
+	//댓글 수정 데이터 조회 함수
+	public BoardVO getEditData(BoardVO bVO) {
+		return sqlSession.selectOne("rSQL.editData", bVO);
+	}
+	
+	//게시글 수정 처리 함수
+	public int editProc(BoardVO bVO) {
+		return sqlSession.update("rSQL.editReBoard", bVO);
+	}
+	
+	//게시글 삭제 처리 함수
+	public int delReBoard(BoardVO bVO) {
+		return sqlSession.update("rSQL.delReBoard", bVO);
 	}
 }

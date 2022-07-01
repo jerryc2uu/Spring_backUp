@@ -5,7 +5,7 @@ import java.util.*;
 
 public class MemberVO {
 	private int mno, ano, cnt;
-	private String name, id, pw, mail, tel, gen, sdate, savename;
+	private String name, id, pw, mail, tel, gen, sdate, savename, result;
 	private Date jdate;
 	
 	public int getCnt() {
@@ -85,11 +85,17 @@ public class MemberVO {
 	public void setSavename(String savename) {
 		this.savename = savename;
 	}
+	public String getResult() {
+		return result;
+	}
+	public void setResult(String result) {
+		this.result = result;
+	}
 	@Override
 	public String toString() {
 		return "MemberVO [mno=" + mno + ", ano=" + ano + ", cnt=" + cnt + ", name=" + name + ", id=" + id + ", pw=" + pw
 				+ ", mail=" + mail + ", tel=" + tel + ", gen=" + gen + ", sdate=" + sdate + ", savename=" + savename
-				+ ", jdate=" + jdate + "]";
+				+ ", result=" + result + ", jdate=" + jdate + "]";
 	}
 	
 }

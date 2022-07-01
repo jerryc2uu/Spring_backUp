@@ -4,8 +4,10 @@ import java.util.*;
 
 
 
+
 import javax.servlet.http.*;
 
+import org.slf4j.*;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.stereotype.*;
 import org.springframework.web.bind.annotation.*;
@@ -16,9 +18,14 @@ import com.githrd.www.dao.GBoardDao;
 import com.githrd.www.dao.MemberDao;
 import com.githrd.www.vo.MemberVO;
 
-@Controller
+@Controller//("memb")
 @RequestMapping("/member")
 public class Member {
+	
+	private static final Logger memberLog = LoggerFactory.getLogger(Member.class);
+	/* Logger 타입의 memberLog 라는 변수 선언
+	 	
+	 */
 	
 	//뷰에 사용할 데이터와 뷰를 관리하는 클래스
 	
@@ -27,9 +34,16 @@ public class Member {
 	@Autowired
 	GBoardDao gDao;
 	
-	//로그인 페이지 보이기
+	//로그인 페이지 보이기 (메인페이지)
 	@RequestMapping("/login.blp")
 	public ModelAndView loginForm(ModelAndView mv, HttpSession session) {
+		mv.setViewName("member/login");
+		return mv;
+	}
+	
+	//로그인 페이지 보이기 (댓글 페이지)
+	@RequestMapping(path="/login.blp", params= {"vw", "nowPage"})
+	public ModelAndView loginForm(ModelAndView mv, HttpSession session, String vw, String nowPage) {
 		mv.setViewName("member/login");
 		return mv;
 	}
@@ -44,7 +58,7 @@ public class Member {
 	
 	//일반 회원 로그인 처리
 	@RequestMapping(path="/loginProc.blp", method=RequestMethod.POST, params={"id", "pw"})
-	public ModelAndView loginProc(MemberVO mVO, HttpSession session, ModelAndView mv, RedirectView rv) {
+	public ModelAndView loginProc(ModelAndView mv, MemberVO mVO, HttpSession session, RedirectView rv) {
 		//System.out.println("####일반 사용자");
 		//System.out.println("*************** sid : " + sid);//파라미터의 키값(input 태그의 name 값이 id이기 때문..
 		
@@ -54,11 +68,14 @@ public class Member {
 		System.out.println("********** mVO.pw : " + mVO.getPw());*/
 		
 		int cnt = mDao.getLogin(mVO);
-		
-		String view = "";
+		mVO.setCnt(cnt);
 		
 		if(cnt == 1) {
-			session.setAttribute("SID", mVO.getId());
+			session.setAttribute("SID", mVO.getId()); // 로그인 처리
+			
+			//로그 처리
+			//memberLog.info(mVO.getId() + " 님이 로그인했습니다."); //5. 로그메세지 출력
+			
 			session.setAttribute("MSG_CHECK", "OK");
 			
 			int count = gDao.getMyCount(mVO.getId());
@@ -73,6 +90,33 @@ public class Member {
 			
 		} else {
 			rv.setUrl("/www/member/login.blp");
+		}
+		mv.setView(rv);
+		return mv;
+	}
+	
+	//댓글 게시판에서 일반 회원 로그인 요청 시 처리
+	@RequestMapping(path="/loginProc.blp", method=RequestMethod.POST, params={"id", "pw", "vw", "nowPage"})
+	public ModelAndView loginProc(ModelAndView mv, MemberVO mVO, HttpSession session, RedirectView rv, String vw, String nowPage) {
+
+		int cnt = mDao.getLogin(mVO);
+		
+		String view = "";
+		
+		if(cnt == 1) {
+			//로그인 성공
+			session.setAttribute("SID", mVO.getId()); //로그인 처리
+			session.setAttribute("MSG_CHECK", "OK");
+			
+			int count = gDao.getMyCount(mVO.getId());
+			
+			session.setAttribute("CNT", count);
+			
+			rv.setUrl(vw + "?nowPage=" + nowPage); //리다이렉트
+			
+		} else {
+			//로그인 실패
+			rv.setUrl("/www/member/login.blp?vw=" + vw + "&nowPage=" + nowPage);
 		}
 		mv.setView(rv);
 		return mv;
@@ -105,7 +149,7 @@ public class Member {
 	
 	//관리자 계정 로그인 처리
 	@RequestMapping(path="/loginProc.blp", params="id=admin")
-	public ModelAndView adminLogin(MemberVO mVO, HttpSession session, ModelAndView mv, RedirectView rv) {
+	public ModelAndView adminLogin(ModelAndView mv, MemberVO mVO, HttpSession session, RedirectView rv) {
 		System.out.println("### 관리자");
 		int cnt = mDao.getLogin(mVO);
 		
@@ -158,8 +202,11 @@ public class Member {
 	
 	//로그아웃 처리
 	@RequestMapping("/logout.blp")
-	public ModelAndView logout(ModelAndView mv, HttpSession session, String vw, String nowPage) {
+	public ModelAndView logout(ModelAndView mv, HttpSession session, MemberVO mVO, String vw, String nowPage) {
 		session.removeAttribute("SID");
+		mVO.setResult("OK");
+		//로그처리
+		//memberLog.info(" ### " + sid + " 님이 로그아웃 했습니다.");
 		
 		if(vw == null) {
 			vw = "/www/";
@@ -193,6 +240,7 @@ public class Member {
 		mv.setViewName("member/join");
 		return  mv;
 	}
+	
 	
 	/*
 	//회원가입 폼보기 요청
@@ -235,6 +283,37 @@ public class Member {
 		return mv;
 	}
 	
+	//회원가입 처리 요청(댓글게시판)
+	@RequestMapping(path="/joinProc.blp", method=RequestMethod.POST, params={"vw", "nowPage"})
+	public ModelAndView joinProc(MemberVO mVO, ModelAndView mv, RedirectView rv, HttpSession session, String vw, String nowPage) {
+		
+		//System.out.println("######### before mno : " + mVO.getMno());
+		int cnt = mDao.addMember(mVO);
+		//System.out.println("######### after mno : " + mVO.getMno());
+		
+		if(cnt == 1) {
+			// 회원가입 성공
+			session.setAttribute("SID", mVO.getId());
+			session.setAttribute("MSG_CHECK", "OK");
+			
+			int count = gDao.getMyCount(mVO.getId());
+			
+			session.setAttribute("CNT", count);
+			//rv.setUrl(vw + "?nowPage" + nowPage); //get방식
+			
+		} else {
+			//회원가입 실패
+			vw = "/www/member/join.blp";			
+			//rv.setUrl("/www/member/join.blp?vw=" + vw + "&nowPage=" + nowPage); //get방식
+		}
+		
+		//mv.setView(rv); //get방식
+		mv.addObject("NOWPAGE", nowPage);
+		mv.addObject("VIEW", vw);		
+		mv.setViewName("reBoard/redirect");
+		return mv;
+	}
+	
 	//아이디 체크 처리
 	@RequestMapping(path="/idCheck.blp", method=RequestMethod.POST, params="id")	
 	@ResponseBody
@@ -265,10 +344,10 @@ public class Member {
 	
 	//내 정보 보기
 	@RequestMapping("/myInfo.blp")
-	public ModelAndView myInfo(ModelAndView mv, String id) {
+	public ModelAndView myInfo(ModelAndView mv, MemberVO mVO) {
 		
 		//데이터 가져오고
-		MemberVO mVO = mDao.getIdInfo(id);
+		mVO = mDao.getIdInfo(mVO.getId());
 		//뷰에 데이터 심고
 		mv.addObject("DATA", mVO);
 		//뷰 정하고(포워드)

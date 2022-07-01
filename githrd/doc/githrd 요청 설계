@@ -11,7 +11,7 @@
 ===========================================
 # 로그인 폼 보기 요청
 요청내용	:	/www/member/login.blp
-파라미터	:	없음
+파라미터	:	[vw, nowPage]
 컨트롤러	:	com.githrd.www.controller.Member
 처리함수	:	loginForm()
 뷰			:	/WEB-INF/views/member/login.jsp
@@ -161,4 +161,188 @@
 컨트롤러	:	com.githrd.www.controller.ReBoard
 처리함수	:	writeProc()
 뷰			:	/WEB-INF/views/reBoard/redirect.jsp
+--------------------------------------------
+# 댓글게시판 대댓글 작성 폼 보기 요청
+요청내용	:	/www/reBoard/commentWrite.blp
+파라미터	:	nowPage, id, bno, vw
+컨트롤러	:	com.githrd.www.controller.ReBoard
+처리함수	:	commentWrite()
+뷰			:	/WEB-INF/views/reBoard/reBoardComment.jsp
+--------------------------------------------
+# 댓글게시판 댓글 등록 처리 요청
+요청내용	:	/www/reBoard/commentProc.blp
+파라미터	:	nowPage, id, body, mno, upno, vw
+컨트롤러	:	com.githrd.www.controller.ReBoard
+처리함수	:	writeProc()
+뷰			:	/WEB-INF/views/reBoard/redirect.jsp
+--------------------------------------------
+# 댓글게시판 댓글 수정 폼 보기 요청
+요청내용	:	/www/reBoard/reBoardEdit.blp
+파라미터	:	nowPage, bno, vw
+컨트롤러	:	com.githrd.www.controller.ReBoard
+처리함수	:	reBoardWrite()
+뷰			:	/WEB-INF/views/reBoard/reBoardEdit.jsp
+--------------------------------------------
+# 댓글게시판 글 수정 처리 요청
+요청내용	:	/www/reBoard/editProc.blp
+파라미터	:	nowPage, bno, vw, body (컨트롤러 실행 전 받아야 할)
+컨트롤러	:	com.githrd.www.controller.ReBoard
+처리함수	:	editProc()
+뷰			:	/WEB-INF/views/reBoard/redirect.jsp
+--------------------------------------------
+# 댓글게시판 글 삭제 처리 요청
+요청내용	:	/www/reBoard/delReBoard.blp
+파라미터	:	nowPage, bno, vw
+컨트롤러	:	com.githrd.www.controller.ReBoard
+처리함수	:	delReBoard()
+뷰			:	/WEB-INF/views/reBoard/redirect.jsp
+--------------------------------------------
+===========================================================
+################## 설문 조사 요청 설계 #################
+===========================================================
+# 설문 정보 폼 보기 요청
+요청내용	:	/www/survey/surveyInfo.blp
+파라미터	:	id
+컨트롤러	:	com.githrd.www.controller.Survey
+처리함수	:	surveyInfo()
+뷰			:	/WEB-INF/views/survey/surveyInfo.jsp
+--------------------------------------------
+# 설문 조사 폼 보기 요청
+요청내용	:	/www/survey/survey.blp
+파라미터	:	id, sino, title (종료된 설문은 결과, 진행 중 설문은 설문 조사 페이지)
+컨트롤러	:	com.githrd.www.controller.Survey
+처리함수	:	survey()
+뷰			:	/WEB-INF/views/survey/survey.jsp
+--------------------------------------------
+# 설문 조사 폼 보기 요청
+요청내용	:	/www/survey/survey.blp
+파라미터	:	id, sino, title (종료된 설문은 결과, 진행 중 설문은 설문 조사 페이지)
+컨트롤러	:	com.githrd.www.controller.Survey
+처리함수	:	survey()
+뷰			:	/WEB-INF/views/survey/survey.jsp
+--------------------------------------------
+# 설문 조사 입력 처리 요청
+요청내용	:	/www/survey/surveyProc.blp
+파라미터	:	id, sino, title, dap[]
+컨트롤러	:	com.githrd.www.controller.Survey
+처리함수	:	surveyProc()
+뷰			:	/WEB-INF/views/survey/survey.jsp
+--------------------------------------------
+# 설문 조사 결과 폼 보기 요청
+요청내용	:	/www/survey/surveyResult.blp
+파라미터	:	id, sino, title
+컨트롤러	:	com.githrd.www.controller.Survey
+처리함수	:	surveyResult()
+뷰			:	/WEB-INF/views/survey/surveyResult.jsp
+--------------------------------------------
+===========================================================
+################## 파일 게시판 요청 설계 #################
+===========================================================
+# 파일 게시판 리스트 폼 보기 요청
+요청내용	:	/www/board/boardList.blp
+파라미터	:	[nowPage]
+컨트롤러	:	com.githrd.www.controller.Board
+처리함수	:	boardList()
+뷰			:	/WEB-INF/views/board/boardList.jsp
+--------------------------------------------
+# 파일 게시판 게시글 상세 보기 요청
+요청내용	:	/www/board/boardDetail.blp
+파라미터	:	nowPage, bno
+컨트롤러	:	com.githrd.www.controller.Board
+처리함수	:	boardDetail()
+뷰			:	/WEB-INF/views/board/boardDetail.jsp
+--------------------------------------------
+# 파일 게시판 글쓰기 폼 보기 요청
+요청내용	:	/www/board/boardWrite.blp
+파라미터	:	nowPage
+컨트롤러	:	com.githrd.www.controller.Board
+처리함수	:	boardWrite()
+뷰			:	/WEB-INF/views/board/boardWrite.jsp
+--------------------------------------------
+# 파일 게시판 글등록 처리 요청
+요청내용	:	/www/board/boardWriteProc.blp
+파라미터	:	nowPage, id, title, body [, file]
+컨트롤러	:	com.githrd.www.controller.Board
+처리함수	:	boardWriteProc()
+뷰			:	/WEB-INF/views/board/boardWriteProc.jsp
+--------------------------------------------
+# 파일 게시판 글수정 폼 보기 요청
+요청내용	:	/www/board/boardEdit.blp
+파라미터	:	nowPage, bno
+컨트롤러	:	com.githrd.www.controller.Board
+처리함수	:	boardEdit()
+뷰			:	/WEB-INF/views/board/boardEdit.jsp
+--------------------------------------------
+# 파일 게시판 첨부파일 삭제 처리 요청 ==비동기==
+요청내용	:	/www/board/fileDel.blp
+파라미터	:	fno
+컨트롤러	:	com.githrd.www.controller.Board
+처리함수	:	fileDel()
+뷰			:	json
+--------------------------------------------
+# 파일 게시판 글수정 처리 요청
+요청내용	:	/www/board/boardEditProc.blp
+파라미터	:	nowPage, bno, title, body [, file]
+컨트롤러	:	com.githrd.www.controller.Board
+처리함수	:	boardEditProc()
+뷰			:	redirect.jsp
+					성공 : /www/board/boardDetail.blp
+					실패 : /www/board/boardEdit.blp
+--------------------------------------------
+# 파일 게시판 게시글 삭제 처리 요청
+요청내용	:	/www/board/boardDelProc.blp
+파라미터	:	nowPage, bno
+컨트롤러	:	com.githrd.www.controller.Board
+처리함수	:	boardDelProc()
+뷰			:	redirect.jsp
+					성공 : /www/board/boardDetail.blp
+					실패 : /www/board/boardEdit.blp
+--------------------------------------------
+===========================================================
+################## 사원 페이지 요청 설계 #################
+===========================================================
+# 사원 페이지 폼 보기 요청
+요청내용	:	/www/emp/empPage.blp
+파라미터	:	없음
+컨트롤러	:	com.githrd.www.controller.Emp
+처리함수	:	empPage()
+뷰			:	/WEB-INF/views/emp/empPage.jsp
+--------------------------------------------
+# 사원 페이지 분류 리스트 조회 비동기 요청
+요청내용	:	/www/emp/selList.blp
+파라미터	:	sel
+컨트롤러	:	com.githrd.www.controller.Emp
+처리함수	:	selList()
+뷰			:	json : ArrayList<EmpVO> ==> Array<JSON>
+--------------------------------------------
+# 사원 페이지 분류별 사원 리스트 조회 비동기 요청
+요청내용	:	/www/emp/partList.blp
+파라미터	:	job || dno
+컨트롤러	:	com.githrd.www.controller.Emp
+처리함수	:	partList()
+뷰			:	json : ArrayList<EmpVO> ==> Array<JSON>
+--------------------------------------------
+# 사원 정보 조회 비동기 요청
+요청내용	:	/www/emp/empInfo.blp
+파라미터	:	eno
+컨트롤러	:	com.githrd.www.controller.Emp
+처리함수	:	empInfo()
+뷰			:	json : EmpVO ==> JSON
+--------------------------------------------
+# 사원 이니셜 리스트 조회 비동기 요청
+요청내용	:	/www/emp/enameList.blp
+파라미터	:	eno
+컨트롤러	:	com.githrd.www.controller.Emp
+처리함수	:	enameList()
+뷰			:	json : ArrayList<EmpVO> ==> Array<JSON>
+--------------------------------------------
+===========================================================
+################## Singer 페이지 요청 설계 #################
+===========================================================
+# 가수 사진 페이지 폼 보기 요청
+요청내용	:	/www/singer/singer.blp
+파라미터	:	없음
+컨트롤러	:	com.githrd.www.controller.Singer
+처리함수	:	singer()
+뷰			:	/WEB-INF/views/singer/singer.jsp
 --------------------------------------------

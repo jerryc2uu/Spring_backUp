@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+			"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="bSQL">
+	<!-- 회원 아이디로 회원 번호 조회 -->
+	<select id="selMno" resultType="int" parameterType="string">
+		SELECT
+			mno
+		FROM
+			member
+		WHERE
+			id = #{id}
+	</select>
+	<!-- 총 게시글 수 -->
+	<select id="getTotal" resultType="int">
+		SELECT
+		    COUNT(*)
+		FROM
+		    board 
+		WHERE
+		    isshow = 'Y'
+	</select>
+	<!-- 게시글 리스트 -->
+	<select id="getList" resultType="bVO" parameterType="page">
+		SELECT
+		    bno, id, title, sdate, click, cnt
+		FROM
+		    (
+		    SELECT
+		        ROWNUM rno, bno, id, title, sdate, click, cnt
+		    FROM
+		        (
+		            SELECT
+		                bno, id, title, TO_CHAR(wdate, 'yyyy/MM/dd') sdate, click, cnt     
+		            FROM
+		                board, member,
+		                (
+		                    SELECT
+		                        bno fbno, NVL(COUNT(fno), 0) cnt
+		                    FROM
+		                        board, fileInfo
+		                    WHERE
+		                        bno = fbno(+)
+		                        AND fileinfo.isshow(+) = 'Y'
+		                    GROUP BY
+		                        bno
+		                )
+		            WHERE
+		                bno = fbno
+		                AND bmno = mno
+		                AND board.isshow = 'Y'
+		            ORDER BY
+		                bno DESC
+		        )
+		    )
+		WHERE
+		    rno BETWEEN #{startCont} AND #{endCont}
+	</select>
+	
+	<!-- 글번호로 게시글 내용 조회 -->
+	<select id="boardDetail" resultType="bVO" parameterType="int">
+		SELECT
+		    bno, id, title, body, wdate
+		FROM
+		    board b, member m
+		WHERE
+		    bmno = mno
+		    AND b.isshow = 'Y'
+		    AND bno = #{bno}
+	</select>
+	<!-- 글번호로 첨부파일 리스트 조회 -->
+	<select  id="fileList" resultType="fVO"	parameterType="int">
+		SELECT
+		    savename, dir, fno
+		FROM
+		    fileinfo
+		WHERE
+		    fbno = #{bno}
+		    AND isshow = 'Y'
+	</select>
+	
+	<!-- 파일 게시판 게시글 추가 -->
+	<insert id="insertBoard" parameterType="bVO">
+		<selectKey keyProperty="bno" resultType="int" order="BEFORE">
+			SELECT 
+			    NVL(MAX(bno) + 1, 100001) 
+			FROM 
+			    board
+		</selectKey>
+		INSERT INTO
+		    board(bno, bmno, title, body)
+		VALUES(
+		    #{bno},
+		    #{mno},
+<!-- 		    (SELECT mno FROM member WHERE id = #{id}), -->
+		    #{title}, #{body}
+		)
+	</insert>
+	
+	<!-- 파일 게시판 게시글에 파일 추가 -->
+	<insert id="insertFile" parameterType="fVO">
+		<selectKey keyProperty="fno" resultType="int" order="BEFORE">
+			SELECT 
+			    NVL(MAX(fno) + 1, 10000001) 
+			FROM 
+			    fileinfo
+		</selectKey>
+		INSERT INTO
+		    fileinfo(fno, fbno, oriname, savename, dir, len)
+		VALUES(
+		    #{fno}, #{bno}, #{oriname}, #{savename}, #{dir}, #{len}
+		)
+	</insert> 
+	
+	<!-- 첨부 파일 삭제 처리 -->
+	<update id="delFile" parameterType="int">
+		UPDATE
+			fileinfo
+		SET
+			isshow = 'N'
+		WHERE
+			fno = #{fno}
+	</update>
+	
+	<!-- 게시글 수정 질의명령 -->
+	<update id="editBoard" parameterType="bVO">
+		UPDATE
+			board
+		<set>
+			<if test="title neq null">
+				title = #{title},
+			</if>
+			<if test="body neq null">
+				body = #{body},
+			</if>
+		</set>
+		WHERE
+			bno = #{bno}	
+	</update>
+	
+	<!-- 게시글 삭제 -->
+	<update id="delBoard" parameterType="int">
+		UPDATE
+			board
+		SET
+			isshow = 'N'
+		WHERE
+			bno = #{bno}
+	</update>
+</mapper>

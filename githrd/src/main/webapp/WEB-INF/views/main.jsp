@@ -57,6 +57,11 @@
 						<span class="w3-cell m2 w3-button w3-small w3-red w3-hover-light-green w3-left mt0" id="ibtn">내정보 보기</span>
 					</div>
 </c:if>
+<c:if test="${not empty SID and SCOUNT ne 0}">
+				<div class="w3-col">
+					<p class="w3-right-align"><small>* 현재 진행 중인 설문 중 참여하지 않은 설문이 [ <span class="w3-text-blue">${SCOUNT}</span> ]개 있습니다.</small></p>
+				</div>
+</c:if>					
 
 					
 					<div class="w3-col mt10">
@@ -66,10 +71,11 @@
 						<div class="w3-col m3 pdh10">
 							<h5 class="w3-col w3-button w3-pink w3-hover-light-green" id="gbtn">방명록</h5>
 						</div>
+<c:if test="${not empty SID}">
 						<div class="w3-col m3 pdh10">
 							<h5 class="w3-col w3-button w3-red w3-hover-light-green" id="sbtn">설문조사</h5>
 						</div>
-
+</c:if>
 						<div class="w3-col m3 pdh10">
 							<h5 class="w3-col w3-button w3-deep-orange w3-hover-light-green" id="irbtn">댓글쓰기</h5>
 						</div>
@@ -79,6 +85,10 @@
 						</div>
 						<div class="w3-col m3 pdh10">
 							<h5 class="w3-col w3-button w3-amber w3-hover-light-green" id="fbtn">파일게시판</h5>
+						</div>
+
+						<div class="w3-col m3 pdh10">
+							<h5 class="w3-col w3-button w3-yellow w3-hover-lime" id="emp">사원페이지</h5>
 						</div>
 					</div>
 				</div>

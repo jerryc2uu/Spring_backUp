@@ -4,7 +4,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Whistle Join</title>
+<title>GITHRD Join</title>
 <link rel="stylesheet" type="text/css" href="/www/css/w3.css">
 <link rel="stylesheet" type="text/css" href="/www/css/user.css">
 <script type="text/javascript" src="/www/js/jquery-3.6.0.min.js"></script>
@@ -49,6 +49,10 @@
 		<h1 class="w3-pink w3-center w3-padding w3-card-4">GITHRD 회원가입</h1>
 		<form method="POST" action="" name="frm" id="frm"
 			class="w3-col w3-margin-top w3-margin-bottom w3-padding w3-card-4">
+<c:if test="${not empty param.vw}">
+			<input type="hidden" id="nowPage" name="nowPage" value="${param.nowPage}">
+			<input type="hidden" id="view" name="vw" value="${param.vw}">
+</c:if>			
 			<div>
 				<label for="name" class="w3-col s3 w3-right-align w3-margin-top clrgrey ft14 mgb10">회원이름 : </label>
 				<input type="text" name="name" id="name" class="w3-col s8 w3-margin-top mgl10 w3-input w3-border mgb10">

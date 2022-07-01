@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+			"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="eSQL">
+	<select id="selList" resultType="eVO" parameterType="eVO">
+		SELECT
+			<if test="sel eq 'dept'">
+				deptno dno, dname
+			</if>
+			<if test="sel eq 'job'">
+				DISTINCT job
+			</if>
+		FROM
+			<if test="sel eq 'job'">
+				emp
+			</if>
+			<if test="sel eq 'dept'">
+				dept
+			</if>
+	</select>
+	
+	<select id="partList" resultType="eVO" parameterType="eVO">
+		SELECT
+		    empno eno, ename name
+		FROM
+		    emp
+		WHERE
+			<if test="job neq null">
+				job = #{job}
+			</if>
+			<if test="job eq null">
+	   		deptno = #{dno}
+	   		</if>
+	</select>
+	
+	<!-- 사원번호로 사원 정보 조회 -->
+	<select id="getInfo" resultType="eVO" parameterType="eVO">
+		SELECT
+		    e.empno eno, e.ename name, e.job, e.hiredate, e.sal, 
+		    NVL(TO_CHAR(e.comm), '커미션없음') comm, 
+		    dname, loc, grade, NVL(s.ename, '상사없음') sangsa
+		FROM
+		    emp e, emp s, dept d, salgrade
+		WHERE
+		    e.deptno = d.deptno
+		    AND e.mgr = s.empno(+)
+		    AND e.sal BETWEEN losal AND hisal
+		    AND e.empno = #{eno}
+	</select>
+	
+	<!-- 이니셜 조회 -->
+	<select id="getInitial" resultType="eVO">
+		SELECT
+		    DISTINCT SUBSTR(ename, 1, 1) name
+		FROM
+		    emp
+		ORDER BY
+		    name
+	</select>
+	
+	<!-- 이니셜로 이름 조회 -->
+	<select id="nameList" resultType="eVO" parameterType="eVO">
+		SELECT
+		    empno eno, ename name
+		FROM
+		    emp
+		WHERE
+		    ename LIKE #{name} || '%'
+	</select>
+</mapper>

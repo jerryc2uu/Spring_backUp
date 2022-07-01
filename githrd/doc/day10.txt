@@ -1,0 +1,47 @@
+# day10
+
+Log 처리
+
+1. pom.xml에서 최신 버전의 log4j 설정
+
+2. src/main/resources/log4j.xml 파일 열어서 수정
+	
+	<version>1.2.17</version>
+
+3. 로그 처리할 클래스에서 Logger 꺼내고
+
+4. 로그 작업 할 함수에서 로그 기억
+	
+	+) static 멤버는 this로 접근 불가, heap이 아닌 static 영역에 올라감
+	   new 이전에 static에 올라가 있음
+	   
+	
+	log4j
+		FATAL	: 가장 치명적인 에러 발생 시 사용
+		ERROR	: 일반 에러	
+		WARN	: 단순 주의
+		INFO	: 일반 정보 간략하게
+		DEBUG   : 일반 정보 상세하게
+		
+	로그 메세지 패턴
+		
+	*	%p : priority(로그레벨) 출력
+	*	%m : 로그 내용(메세지)
+	*	%d : 로깅 이벤트 발생 시간
+	         
+	         [포맷 지정]
+	         	%d(yyyy/MM/dd HH:mm:ss)	
+	         	=> java.text.SimpleDateFormat 형식 사용해서 처리	
+		
+		%t : 로그 이벤트가 발생한 쓰레드 이름
+		%% : % 표시
+	*   %n : 줄바꿈
+	*	%c : 전체 패키지와 클래스
+		%C : 패키지와 클래스	
+		%F : 로그 이벤트가 발생한 프로그램 파일명
+		%I : 로그 이벤트가 발생한 행 수
+		%M : 로그 이벤트가 발생한 메소드 이름
+		%r : 어플리케이션 시작 후부터 로그 이벤트 발생한 시간(1/1000초)
+		
+		
+		

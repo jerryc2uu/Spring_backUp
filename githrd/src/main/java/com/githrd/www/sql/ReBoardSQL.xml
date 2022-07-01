@@ -54,6 +54,17 @@
 			AND id = #{id}
 	</select>
 	
+	<!-- 대댓글 작성하는 윗 댓글 데이터 조회 -->
+	<select id="commentData" resultType="bVO" parameterType="bVO">
+		SELECT
+		    mno, savename avatar, rbno upno, body    
+		FROM    
+		    member, avatar, reboard
+		WHERE
+		    avt = ano
+		    AND id = #{id}
+		    AND rbno = #{bno}
+	</select>
 	<!-- 댓글 등록 처리 요청 -->
 	<insert id="addReBoard" parameterType="bVO"><!-- select 아니라서 인라인뷰 없음, resultType도 없다 -->
 		<selectKey keyProperty="bno" resultType="int" order="BEFORE">
@@ -76,4 +87,48 @@
 	    	</if>
 		)											
 	</insert>
+	
+	<!-- 댓글 수정 폼 보기 -->
+	<select id="editData" resultType="bVO" parameterType="bVO">
+		SELECT
+		    mno, savename avatar, rbno bno, body, wdate   
+		FROM    
+		    member m, avatar a, reboard r
+		WHERE
+		    avt = ano
+		    AND mno = rbmno
+		    AND rbno = #{bno}		
+	</select>	
+	
+	<!-- 댓글 수정 처리 -->
+	<update id="editReBoard" parameterType="bVO">
+		UPDATE
+			reboard
+		SET
+			body = #{body},
+			wdate = sysdate
+		WHERE
+			rbno = #{bno}
+	</update>
+	
+	<!-- 글 삭제 처리 -->
+	<update id="delReBoard" parameterType="bVO">
+		UPDATE
+		    reboard
+		SET
+		    isshow = 'N'
+		WHERE
+		    rbno IN (
+		                SELECT
+		                    rbno
+		                FROM
+		                    reboard
+		                WHERE
+		                    isshow = 'Y'
+		                START WITH
+		                    rbno = #{bno}
+		                CONNECT BY
+		                    PRIOR rbno = upno
+		            )
+	</update>
 </mapper>

@@ -13,6 +13,8 @@
 		<typeAlias alias="mVO" type="com.githrd.www.vo.MemberVO" />
 		<typeAlias alias="bVO" type="com.githrd.www.vo.BoardVO" />
 		<typeAlias alias="fVO" type="com.githrd.www.vo.FileVO" />
+		<typeAlias alias="sVO" type="com.githrd.www.vo.SurveyVO" />
+		<typeAlias alias="eVO" type="com.githrd.www.vo.EmpVO" />
 		<typeAlias alias="page" type="com.githrd.www.util.PageUtil" />
 	</typeAliases>
 	
@@ -20,5 +22,8 @@
 		<mapper resource="com/githrd/www/sql/MemberSQL.xml" />
 		<mapper resource="com/githrd/www/sql/GBoardSQL.xml" />
 		<mapper resource="com/githrd/www/sql/ReBoardSQL.xml" />
+		<mapper resource="com/githrd/www/sql/SurveySQL.xml" />
+		<mapper resource="com/githrd/www/sql/BoardSQL.xml" />
+		<mapper resource="com/githrd/www/sql/EmpSQL.xml" />
 	</mappers>
 </configuration>

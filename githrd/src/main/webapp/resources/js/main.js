@@ -53,4 +53,22 @@ $(document).ready(function(){
 	$('#rbtn').click(function(){
 		$(location).attr('href', '/www/reBoard/reBoardList.blp');
 	});
+	
+	//설문조사 버튼
+	$('#sbtn').click(function(){
+		$('#frm').attr('action', '/www/survey/surveyInfo.blp');
+		$('#frm').submit();
+	});
+	
+	//댓글 쓰기 버튼
+	
+	//파일 게시판 버튼
+	$('#fbtn').click(function(){
+		$(location).attr('href', '/www/board/boardList.blp');
+	});
+	
+	//사원페이지
+	$('#emp').click(function(){
+		$(location).attr('href', '/www/emp/empPage.blp');
+	});
 });

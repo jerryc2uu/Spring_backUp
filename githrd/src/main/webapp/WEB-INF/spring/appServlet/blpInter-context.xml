@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc 
+						https://www.springframework.org/schema/mvc/spring-mvc.xsd
+						http://www.springframework.org/schema/beans 
+						https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- 로그인 체크 인터셉터 빈처리 -->
+	<beans:bean id="loginCheck" class="com.githrd.www.interceptor.LoginCheckInterceptor" />
+	<beans:bean id="loginRedirect" class="com.githrd.www.interceptor.LoginRedirectInterceptor" />
+	
+	<interceptors>
+		<interceptor>
+			<mapping path="/member/*.blp" />
+			<exclude-mapping path="/member/logout.blp" />
+			<exclude-mapping path="/member/idCheck.blp" />
+			<exclude-mapping path="/member/myInfo.blp" />
+			<exclude-mapping path="/member/memberInfo.blp" />
+			<exclude-mapping path="/member/memberList.blp" />
+			<exclude-mapping path="/member/delMember.blp" />
+			<exclude-mapping path="/member/myInfoEdit.blp" />
+			<exclude-mapping path="/member/infoEditProc.blp" />
+			<beans:ref bean="loginCheck" />
+		</interceptor>
+		<interceptor>
+			<mapping path="/member/logout.blp" />
+			<mapping path="/member/*Info.blp" />
+			<mapping path="/member/myInfoEdit.blp" />
+			<mapping path="/member/infoEditProc.blp" />
+			<mapping path="/member/memberList.blp" />
+			<mapping path="/member/delMember.blp" />
+			<beans:ref bean="loginRedirect" />
+		</interceptor>
+	</interceptors>
+</beans:beans>

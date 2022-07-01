@@ -9,6 +9,7 @@ public class FileVO {
 	private long len;
 	private String id, oriname, savename, dir, sdate;
 	private Date wdate;
+	
 	public int getBno() {
 		return bno;
 	}

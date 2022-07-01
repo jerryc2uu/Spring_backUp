@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+			"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="sSQL">
+	<!-- 진행 중인 설문 중 참여하지 않은 설문 갯수 조회 -->
+	<select id="remainSurvey" resultType="int" parameterType="sVO">
+		SELECT
+		    COUNT(*)
+		FROM
+		    surveyinfo
+		WHERE
+		    sysdate BETWEEN sistart AND siend
+		    AND sino NOT IN (
+		                    SELECT
+		                        DISTINCT sq_sino
+		                    FROM
+		                        survey, surveyquest, member
+		                    WHERE
+		                        sv_sqno = sqno
+		                        AND smno = mno
+		                        AND id = #{id}
+		                    )
+	</select>
+	<!-- 진행 중인 설문 조사 리스트 조회 -->
+	<select id="ingList" resultType="sVO" parameterType="string">
+		SELECT
+		    sino, sititle title,
+		    NVL(
+		        (SELECT
+		            COUNT(DISTINCT sq_sino)
+		        FROM
+		            survey, surveyquest, member
+		        WHERE
+		            sv_sqno = sqno
+		            AND smno = mno
+		            AND id = #{id}
+		        GROUP BY
+		            sq_sino
+		        HAVING
+		            sq_sino = sino), 0) cnt
+		FROM
+		    surveyinfo
+		WHERE
+		    sysdate BETWEEN sistart AND siend
+	</select>
+	
+	<!-- 종료된 설문 리스트 조회 -->
+	<select id="oldList" resultType="sVO">
+		SELECT
+		    sino, sititle title
+		FROM
+		    surveyinfo
+		WHERE
+			siend <![CDATA[<]]> sysdate
+	</select>
+	
+	<!-- 설문 문항 조회 -->
+	<select id="testList" resultType="sVO" parameterType="int">
+		SELECT
+		    sqno, sqbody body
+		FROM
+		    surveyquest
+		WHERE
+		    sq_sino = #{sino}
+		    AND squpno IS NULL
+		ORDER BY
+		    sqno
+	</select>
+	
+	<!-- 설문 보기 조회 -->
+	<select id="bogiList" resultType="sVO" parameterType="int">
+		SELECT
+		    sqno, sqbody body
+		FROM
+		    surveyquest
+		WHERE
+		    squpno = #{upno}
+		ORDER BY
+		    sqno
+	</select>
+	
+	<!-- 계층형 쿼리로 문항 + 보기 리스트 조회 -->
+	<select id="qList" resultType="sVO" parameterType="int">
+		SELECT
+		    sqno, sqbody body, NVL(squpno, sqno) upno
+		FROM
+		    surveyquest
+		WHERE
+		    sq_sino = #{sino}
+		START WITH
+		    squpno IS NULL
+		CONNECT BY
+		    PRIOR sqno = squpno
+		ORDER SIBLINGS BY
+		    sqno
+	</select>
+	
+	<!-- 설문 조사 응답 추가 -->
+	<insert id="addSurvey" parameterType="sVO">
+		<selectKey keyProperty="mno" resultType="int" order="BEFORE">
+			SELECT
+				mno
+			FROM
+				member
+			WHERE
+				id = #{id}
+		</selectKey>
+		INSERT INTO
+		    survey(svno, smno, sv_sqno)
+		VALUES(
+		    (SELECT NVL(MAX(svno) + 1, 100001) FROM survey),
+		    #{mno}, #{sqno} 
+		)
+	</insert>
+	
+	<select id="resultList" resultType="sVO" parameterType="int">
+		SELECT
+		    sqno, sqbody body, NVL(squpno, sqno) upno, 
+		    NVL(ROUND(cnt / total * 100, 2), 0) per
+		FROM
+		    surveyQuest, 
+		    (
+		        SELECT
+		            sqno qno, COUNT(sv_sqno) cnt
+		        FROM
+		            surveyQuest, survey
+		        WHERE
+		            sqno = sv_sqno(+)
+		            AND squpno IS NOT NULL
+		            AND sq_sino = #{sino}
+		        GROUP BY
+		            sqno
+		        ORDER BY
+		            qno
+		    ),
+		    (
+		        SELECT
+		            count(DISTINCT smno) total
+		        FROM
+		            survey, surveyQuest
+		        WHERE
+		            sv_sqno(+) = sqno
+		            AND sq_sino = #{sino}
+		    )
+		WHERE
+		    sqno = qno(+)
+		ORDER BY
+		    upno, sqno
+	</select>
+	
+	<select id="bogiResult" resultType="sVO" parameterType="int">
+		SELECT
+		    sqno, sqbody body, NVL(squpno, sqno) upno, ROUND(cnt / total * 100, 2) per
+		FROM
+		    surveyQuest, 
+		    (
+		        SELECT
+		            sqno qno, COUNT(sv_sqno) cnt
+		        FROM
+		            surveyQuest, survey
+		        WHERE
+		            sqno = sv_sqno(+)
+		            AND squpno = #{sqno}
+		        GROUP BY
+		            sqno
+		        ORDER BY
+		            qno
+		    ),
+		    (
+		        SELECT
+		            count(DISTINCT smno) total
+		        FROM
+		            survey, surveyQuest
+		        WHERE
+		            sv_sqno(+) = sqno
+		            AND squpno = #{sqno}
+		    )
+		WHERE
+		    sqno = qno
+		ORDER BY
+		    upno, sqno
+	</select>
+</mapper>

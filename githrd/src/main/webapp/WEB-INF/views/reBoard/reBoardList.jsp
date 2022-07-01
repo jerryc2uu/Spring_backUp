@@ -53,10 +53,12 @@
 				<div class="w3-rest w3-padding">
 					<div class="w3-col w3-border-bottom">
 						<div class="w3-col w3-twothird w3-right" id="${data.bno}">
-							<div class="w3-col w3-button w3-small w70 w3-blue w3-right">댓글</div>
+<c:if test="${not empty SID}">
+							<div class="w3-col w3-button w3-small w70 w3-blue w3-right comment">댓글</div>
+</c:if>		
 		<c:if test="${SID eq data.id}">
-							<div class="w3-col w3-button w3-small w70 w3-orange w3-right">수정</div>
-							<div class="w3-col w3-button w3-small w70 w3-red w3-right">삭제</div>
+							<div class="w3-col w3-button w3-small w70 w3-orange w3-right editbtn">수정</div>
+							<div class="w3-col w3-button w3-small w70 w3-red w3-right delbtn">삭제</div>
 		</c:if>
 						</div>
 						<span class="w3-third w3-left mgb10 ft10"><small>${data.sdate}</small></span>
@@ -118,7 +120,7 @@
 		<input type="hidden" id="nowPage" name="nowPage" value="${PAGE.nowPage}">
 		<input type="hidden" id="bno" name="bno">
 		<input type="hidden" id="id" name="id" value="${SID}"><!-- 컨트롤러에서 호출해서 이 JSP 파일이 띄워질 때 결정-->
-		<input type="hidden" id="view" name="vw">
+		<input type="hidden" id="view" name="vw" value="/www/reBoard/reBoardList.blp">
 	</form>
 </body>
 </html>

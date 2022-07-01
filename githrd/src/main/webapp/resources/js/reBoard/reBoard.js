@@ -4,6 +4,7 @@ $(document).ready(function(){
 		var sno = $(this).attr('id');
 		
 		$('#nowPage').val(sno);
+		
 		$('#frm').submit();
 	});
 	
@@ -12,14 +13,15 @@ $(document).ready(function(){
 		$(location).attr('href', '/www/main.blp');
 	});
 	
-	//로그인
+	//로그인 (get방식으로)
 	$('#lbtn').click(function(){
-		$(location).attr('href', '/www/member/login.blp');
+		$(location).attr('href', '/www/member/login.blp?vw=/www/reBoard/reBoardList.blp&nowPage=' + $('#nowPage').val());
 	});
 	
 	//회원가입
 	$('#jbtn').click(function(){
-		$(location).attr('href', '/www/member/join.blp');
+		$(document.frm).attr('action', '/www/member/join.blp');
+		$('#frm').submit();
 	});
 	
 	//로그아웃
@@ -59,6 +61,58 @@ $(document).ready(function(){
 			return;
 		}
 		
+		$('#frm').submit();
+	});
+	
+	//댓글
+	$('.comment').click(function(){
+		
+		var sno = $(this).parent().attr('id');
+		$('#bno').val(sno);
+		
+		$('#frm').attr('action', '/www/reBoard/commentWrite.blp');
+		$('#frm').submit();
+	});
+	
+	//댓글 등록
+	$('#cmtbtn').click(function(){
+		
+		var txt = $('#body').val();
+		if(!txt) {
+			return;
+		}
+		
+		$('#frm').attr('action', '/www/reBoard/commentProc.blp');
+		$('#frm').submit();
+	});
+	
+	//글 수정 버튼
+	$('.editbtn').click(function(){
+		var sno = $(this).parent().attr('id');
+		
+		$('#bno').val(sno);
+		$('#frm').attr('action', '/www/reBoard/reBoardEdit.blp');
+		$('#frm').submit();
+	});
+	
+	//글 수정 등록
+	$('#editbtn').click(function(){
+		//태그 내용 읽고
+		var oritxt = $('#obody').val();
+		var txt = $('#body').val();
+		
+		if(oritxt == txt) {
+			alert('### 수정된 내용이 없어요 ###');
+			return;
+		}
+		
+		$('#frm').submit();			
+	});
+	
+	$('.delbtn').click(function(){
+		var sno = $(this).parent().attr('id');
+		$('#bno').val(sno);
+		$('#frm').attr('action', '/www/reBoard/delReBoard.blp');
 		$('#frm').submit();
 	});
 });

@@ -3,10 +3,13 @@
 	xmlns="http://www.springframework.org/schema/beans"
 	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:tx="http://www.springframework.org/schema/tx"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans 
 						https://www.springframework.org/schema/beans/spring-beans.xsd
 						http://www.springframework.org/schema/context 
-						https://www.springframework.org/schema/context/spring-context.xsd">
+						https://www.springframework.org/schema/context/spring-context.xsd
+						http://www.springframework.org/schema/tx 
+						https://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
 						
 	<!-- Root Context: defines shared resources visible to all other web components -->
 	<context:annotation-config />
@@ -29,4 +32,10 @@
 		<constructor-arg index="0" ref="sqlSessionFactory" />
 	</bean>
 	
+	<tx:annotation-driven />
+	
+	<bean id="transactionManager"
+		  class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"></property>	  
+	</bean>
 </beans>
